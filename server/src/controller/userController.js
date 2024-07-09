@@ -1,10 +1,33 @@
+const { passwordEncrypt } = require('../helpers/passwordHelper');
 const User = require('../model/userModel');
 
-const createUser = async (req, res) => {
+const registerUser = async (req, res) => {
    try {
-      
+
+      const { firstName, lastName, email, password, mobile } = req.body.data;
+      const existingUser = await User.findOne({email});
+
+      if(existingUser){
+         res.status(400).json({message: 'Email already exists', success: false})
+         return;
+      }
+
+      const encryptedPassword = await passwordEncrypt(password);
+
+      const user = new User({
+         firstName,
+         lastName,
+         email,
+         mobile,
+         password: encryptedPassword
+      })
+
+      await user.save();
+      res.status(201).json({message: 'Registration successfull', success: true})
+
    } catch (error) {
-      
+      console.log(error)
+      res.status(500).json({message: 'Internal server error', success: false});
    }
 }
 
@@ -49,7 +72,7 @@ const getSingleUser = async (req, res) => {
 }
 
 module.exports = {
-   createUser,
+   registerUser,
    updateUser,
    deleteUser,
    loginUser,

@@ -9,7 +9,14 @@ const userSchema = new mongoose.Schema({
       type: String,
       required: true
    },
-   passworod: {
+   email: {
+      type: String,
+      required: true
+   },
+   mobile: {
+      type: Number
+   },
+   password: {
       type: String,
       required: true
    },
@@ -18,7 +25,11 @@ const userSchema = new mongoose.Schema({
          type: mongoose.Schema.ObjectId,
          ref: 'Role'
       }
-   ]
+   ],
+   termsAccepted: {
+      type: Boolean,
+      default: true
+   }
 }, {timestamps: true});
 
 module.exports = mongoose.model('User', userSchema);

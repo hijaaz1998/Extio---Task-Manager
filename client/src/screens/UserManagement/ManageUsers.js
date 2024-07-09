@@ -36,6 +36,7 @@ const UsersData = [
 ];
 
 const ManageUsers = () => {
+    const [users, setUsers] = useState(UsersData); // use state to store users
     const [isModal, setIsModal] = useState(false);
     const [isEditModalData, setIsEditModalData] = useState(null);
     const [modalHeader, setModalHeader] = useState(null);
@@ -132,11 +133,22 @@ const ManageUsers = () => {
     };
 
     // Function to handle deleting a user
-    const handleDeleteUser = () => {
-        // Implement your delete logic here, for demo just log
-        console.log("Deleting user with ID:", deleteUserId);
-        // Close delete modal
-        setIsDeleteModalOpen(false);
+    const handleDeleteUser = async () => {
+        try {
+            const response = await axiosInstance.delete(`/users/${deleteUserId}`);
+            if (response.data.success) {
+                toast.success(response.data.message);
+                setUsers(prevUsers => prevUsers.filter(user => user.id !== deleteUserId));
+            }
+            setIsDeleteModalOpen(false);
+        } catch (error) {
+            if (error.response && error.response.data) {
+                toast.error(error.response.data.message);
+            } else {
+                toast.error(error.message);
+                console.log(error.message);
+            }
+        }
     };
 
     // Function to handle form input changes
@@ -157,37 +169,71 @@ const ManageUsers = () => {
     };
 
     // Function to handle form submission
-    const handleSubmit = () => {
-        // Add your form submission logic here
-        if (validateForm()) {
-            console.log("Form submitted with data:", formData);
-            setIsModal(false);
-            // Reset form data
-            setFormData({
-                firstName: "",
-                lastName: "",
-                email: "",
-                mobile: "",
-                roles: []
-            });
+    const handleSubmit = async () => {
+        try {    
+            if(validateForm()){
+                const method = isEditModalData ? 'PUT' : 'POST';
+                const url = isEditModalData ? `/user/${isEditModalData.id}` : `/user/create`;
+    
+                const response = await axiosInstance({
+                    method: method,
+                    url: url,
+                    data: formData,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+    
+                if (response.data.success) {
+                    toast.success(response.data.message);
+                    fetchRoles();
+                }
+    
+                setFormData({
+                    firstName: "",
+                    lastName: "",
+                    email: "",
+                    mobile: "",
+                    roles: []
+                });
+                setIsModal(false);
+            }       
+        } catch (error) {
+            if (error.response && error.response.data) {
+                toast.error(error.response.data.message);
+            } else {
+                toast.error(error.message);
+                console.log(error.message);
+            }
         }
     };
 
     // Function to validate form fields
     const validateForm = () => {
         if (formData.firstName.trim() === "") {
-            alert("First Name cannot be empty");
-            return false;
+            toast.error("First Name cannot be empty");
+            return;
         }
+
         if (formData.lastName.trim() === "") {
-            alert("Last Name cannot be empty");
-            return false;
+            toast.error("Last Name cannot be empty");
+            return;
         }
+
         if (formData.email.trim() === "") {
-            alert("Email cannot be empty");
-            return false;
+            toast.error("Email cannot be empty");
+            return;
         }
-        // You can add more validation as needed
+
+        if (formData.mobile.trim() === "") {
+            toast.error("Mobile cannot be empty");
+            return;
+        }
+
+        if (formData.roles.length === 0) {
+            toast.error("Please select at least one role");
+            return;
+        }
         return true;
     };
 
@@ -205,7 +251,7 @@ const ManageUsers = () => {
                     <DataTable
                         title="Users"
                         columns={columns}
-                        data={UsersData}
+                        data={users}
                         pagination
                         selectableRows={false}
                         className="table myDataTable table-hover align-middle mb-0 d-row nowrap dataTable no-footer dtr-inline"
@@ -239,12 +285,7 @@ const ManageUsers = () => {
                         <Select
                             id="rolesInput"
                             name="roles"
-                            options={[
-                                { value: 'admin', label: 'Admin' },
-                                { value: 'manager', label: 'Manager' },
-                                { value: 'hr', label: 'HR' },
-                                { value: 'coordinator', label: 'Coordinator' }
-                            ]}
+                            options={rolesData ? rolesData.map(role => ({ value: role.roleName, label: role.roleName })) : []}
                             isMulti
                             value={formData.roles.map(role => ({ value: role, label: role }))}
                             onChange={(selectedOptions) => handleRoleSelection(selectedOptions)}
