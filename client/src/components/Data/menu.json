@@ -43,7 +43,7 @@
                 {
                     "name": "Manage Users",
                     "routerLink": ["manage-users"],
-                    "identifier": "manage-users",
+                    "identifier": "Manage Users",
                     "iconClass": "",
                     "breadcrumbMessage": "",
                     "isCategory": false,
@@ -53,7 +53,7 @@
                 {
                     "name": "Manage Roles",
                     "routerLink": ["manage-roles"],
-                    "identifier": "manage-roles",
+                    "identifier": "Manage Roles",
                     "iconClass": "",
                     "breadcrumbMessage": "",
                     "isCategory": false,

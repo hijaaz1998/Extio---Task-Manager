@@ -1,30 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal } from "react-bootstrap";
 import DataTable from "react-data-table-component";
 import Select from 'react-select';
 import PageHeader from "../../components/common/PageHeader";
+import menuData from '../../components/Data/permissions.json';
+import axiosInstance from "../../api/axiosEndpoint"; 
+import toast from 'react-hot-toast';
 
-// Fake data for demonstration
-const RolesData = [
-    {
-        id: 1,
-        roleName: "Admin",
-        permissions: ["Projects", "Tasks", "Timesheet"]
-    },
-    {
-        id: 2,
-        roleName: "Manager",
-        permissions: ["Leaders", "Our Clients", "Clients"]
-    },
-    {
-        id: 3,
-        roleName: "Employee",
-        permissions: ["Client Profile", "Employees", "Members"]
-    },
-    // Add more fake data as needed
-];
+const API_URL = "/role";
 
 const ManageRoles = () => {
+
     const [isModal, setIsModal] = useState(false);
     const [isEditModalData, setIsEditModalData] = useState(null);
     const [modalHeader, setModalHeader] = useState(null);
@@ -36,7 +22,125 @@ const ManageRoles = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [deleteRoleId, setDeleteRoleId] = useState(null);
 
-    // Columns for DataTable
+    const [rolesData, setRolesData] = useState([]);
+
+    useEffect(() => {
+        fetchRoles();
+    }, []);
+
+    const fetchRoles = async () => {
+        try {
+            const response = await axiosInstance.get(API_URL);
+            if(response.data.success){
+                setRolesData(response.data.roles);
+            }
+            console.log("rolesData",rolesData)
+        } catch (error) {
+            if(error.response && error.response.data){
+                toast.error(error.response.data.message)
+            } else {
+                toast.error(error.message)
+                console.log(error.message)
+            }
+        }
+    };
+
+    const handleEditModal = (rowData) => {
+        setIsModal(true);
+        setIsEditModalData(rowData);
+        setModalHeader('Edit Role');
+        setFormData({
+            roleName: rowData.roleName,
+            permissions: rowData.permissions
+        });
+    };
+
+    const handleDeleteModal = (roleId) => {
+        setDeleteRoleId(roleId);
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleDeleteRole = async () => {
+        try {
+            const response = await axiosInstance.delete(`${API_URL}/${deleteRoleId}`);
+            if(response.data.success){
+                toast.success(response.data.message)
+            }
+            setFormData({
+                roleName: "",
+                permissions: []
+            });
+            setIsDeleteModalOpen(false);
+            fetchRoles();
+        } catch (error) {
+            if (error.response && error.response.data) {
+                toast.error(error.response.data.message);
+            } else {
+                toast.error(error.message);
+                console.log(error.message);
+            }
+        }
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            [name]: value
+        }));
+    };
+
+    const handlePermissionSelection = (selectedPermissions) => {
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            permissions: selectedPermissions.map(permission => permission.value)
+        }));
+    };
+
+    const handleSubmit = async () => {
+        try {
+            if (formData.roleName.trim() === "") {
+                toast.error("Role Name cannot be empty");
+                return;
+            }
+
+            if (formData.permissions.length === 0) {
+                toast.error("Please select at least one permission");
+                return;
+            }
+
+            const method = isEditModalData ? 'PUT' : 'POST';
+            const url = isEditModalData ? `${API_URL}/${isEditModalData._id}` : API_URL;
+
+            const response = await axiosInstance({
+                method: method,
+                url: url,
+                data: formData,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.data.success) {
+                toast.success(response.data.message);
+            }
+
+            setFormData({
+                roleName: "",
+                permissions: []
+            });
+            setIsModal(false);
+            fetchRoles();
+        } catch (error) {
+            if (error.response && error.response.data) {
+                toast.error(error.response.data.message);
+            } else {
+                toast.error(error.message);
+                console.log(error.message);
+            }
+        }
+    };
+
     const columns = [
         {
             name: "Role Name",
@@ -53,66 +157,12 @@ const ManageRoles = () => {
             cell: (row) => (
                 <div className="btn-group" role="group" aria-label="Basic outlined example">
                     <button className="btn btn-outline-secondary" onClick={() => handleEditModal(row)}><i className="icofont-edit text-success"></i></button>
-                    <button className="btn btn-outline-secondary deleterow" onClick={() => handleDeleteModal(row.id)}><i className="icofont-ui-delete text-danger"></i></button>
+                    <button className="btn btn-outline-secondary deleterow" onClick={() => handleDeleteModal(row._id)}><i className="icofont-ui-delete text-danger"></i></button>
                 </div>
             ),
             button: true
         }
     ];
-
-    // Function to handle opening edit modal
-    const handleEditModal = (rowData) => {
-        setIsModal(true);
-        setIsEditModalData(rowData);
-        setModalHeader('Edit Role');
-        setFormData({
-            roleName: rowData.roleName,
-            permissions: rowData.permissions
-        });
-    };
-
-    // Function to handle opening delete modal
-    const handleDeleteModal = (roleId) => {
-        setDeleteRoleId(roleId);
-        setIsDeleteModalOpen(true);
-    };
-
-    // Function to handle deleting a role
-    const handleDeleteRole = () => {
-        // Implement your delete logic here, for demo just log
-        console.log("Deleting role with ID:", deleteRoleId);
-        // Close delete modal
-        setIsDeleteModalOpen(false);
-    };
-
-    // Function to handle form input changes
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prevFormData) => ({
-            ...prevFormData,
-            [name]: value
-        }));
-    };
-
-    // Function to handle permission selection
-    const handlePermissionSelection = (selectedPermissions) => {
-        setFormData((prevFormData) => ({
-            ...prevFormData,
-            permissions: selectedPermissions.map(permission => permission.value)
-        }));
-    };
-
-    // Function to handle form submission
-    const handleSubmit = () => {
-        // Add your form submission logic here
-        console.log("Form submitted with data:", formData);
-        setIsModal(false);
-        // Reset form data
-        setFormData({
-            roleName: "",
-            permissions: []
-        });
-    };
 
     return (
         <div className="container-xxl">
@@ -128,7 +178,7 @@ const ManageRoles = () => {
                     <DataTable
                         title="Roles"
                         columns={columns}
-                        data={RolesData}
+                        data={rolesData} // Use rolesData state here
                         pagination
                         selectableRows={false}
                         className="table myDataTable table-hover align-middle mb-0 d-row nowrap dataTable no-footer dtr-inline"
@@ -150,19 +200,7 @@ const ManageRoles = () => {
                         <Select
                             id="permissionsInput"
                             name="permissions"
-                            options={[
-                                { value: 'Projects', label: 'Projects' },
-                                { value: 'Tasks', label: 'Tasks' },
-                                { value: 'Timesheet', label: 'Timesheet' },
-                                { value: 'Leaders', label: 'Leaders' },
-                                { value: 'Our Clients', label: 'Our Clients' },
-                                { value: 'Clients', label: 'Clients' },
-                                { value: 'Client Profile', label: 'Client Profile' },
-                                { value: 'Employees', label: 'Employees' },
-                                { value: 'Members', label: 'Members' },
-                                { value: 'Holidays', label: 'Holidays' },
-                                { value: 'Attendance', label: 'Attendance' }
-                            ]}
+                            options={menuData.map(item => ({ value: item.name, label: item.name }))}
                             isMulti
                             value={formData.permissions.map(permission => ({ value: permission, label: permission }))}
                             onChange={(selectedOptions) => handlePermissionSelection(selectedOptions)}

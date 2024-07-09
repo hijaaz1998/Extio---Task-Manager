@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
 import DataTable from "react-data-table-component";
 import PageHeader from "../../components/common/PageHeader";
 import Select from 'react-select';
+import axiosInstance from "../../api/axiosEndpoint"; 
+import toast from 'react-hot-toast';
 
 // Fake data for demonstration
 const UsersData = [
@@ -29,8 +31,7 @@ const UsersData = [
         email: "michael.johnson@example.com",
         mobile: "+1122334455",
         roles: ["admin", "hr"]
-    },
-    
+    }
     // Add more fake data as needed
 ];
 
@@ -38,6 +39,7 @@ const ManageUsers = () => {
     const [isModal, setIsModal] = useState(false);
     const [isEditModalData, setIsEditModalData] = useState(null);
     const [modalHeader, setModalHeader] = useState(null);
+    const [rolesData, setRolesData] = useState(null)
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -88,6 +90,27 @@ const ManageUsers = () => {
         }
     ];
 
+    useEffect(() => {
+        fetchRoles();
+    },[])
+
+    const fetchRoles = async () => {
+        try {
+            const response = await axiosInstance.get('/role');
+            if(response.data.success){
+                setRolesData(response.data.roles);
+            }
+            console.log("rolesData",rolesData)
+        } catch (error) {
+            if(error.response && error.response.data){
+                toast.error(error.response.data.message)
+            } else {
+                toast.error(error.message)
+                console.log(error.message)
+            }
+        }
+    };
+
     // Function to handle opening edit modal
     const handleEditModal = (rowData) => {
         setIsModal(true);
@@ -136,16 +159,36 @@ const ManageUsers = () => {
     // Function to handle form submission
     const handleSubmit = () => {
         // Add your form submission logic here
-        console.log("Form submitted with data:", formData);
-        setIsModal(false);
-        // Reset form data
-        setFormData({
-            firstName: "",
-            lastName: "",
-            email: "",
-            mobile: "",
-            roles: []
-        });
+        if (validateForm()) {
+            console.log("Form submitted with data:", formData);
+            setIsModal(false);
+            // Reset form data
+            setFormData({
+                firstName: "",
+                lastName: "",
+                email: "",
+                mobile: "",
+                roles: []
+            });
+        }
+    };
+
+    // Function to validate form fields
+    const validateForm = () => {
+        if (formData.firstName.trim() === "") {
+            alert("First Name cannot be empty");
+            return false;
+        }
+        if (formData.lastName.trim() === "") {
+            alert("Last Name cannot be empty");
+            return false;
+        }
+        if (formData.email.trim() === "") {
+            alert("Email cannot be empty");
+            return false;
+        }
+        // You can add more validation as needed
+        return true;
     };
 
     return (

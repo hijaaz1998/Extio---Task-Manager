@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const dbURL = process.env.dbURL
-const dbName = 'Task Manager'
+const dbName = 'Task_Manager'
 
 const dbConnect = {
     connect: () => {
