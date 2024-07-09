@@ -10,9 +10,9 @@ const passwordEncrypt = async (password) => {
    }
 }
 
-const passwordDcrypt = async (data, password) => {
+const passwordDcrypt = async (password, data) => {
    try {
-      const isMatch = await bcrypt.compare(data.password);
+      const isMatch = await bcrypt.compare(password, data);
 
       if(!isMatch) return false
       else return true;

@@ -5,6 +5,7 @@ import AuthIndex from "./screens/AuthIndex";
 import MainIndex from "./screens/MainIndex";
 import Page404 from "./components/Auth/Page404";
 import { useSelector } from "react-redux";
+import { selectUser } from "./redux/slices/userSlice";
 
 function App(props) {
   
@@ -19,18 +20,18 @@ function App(props) {
     return activeKey1;
   }
 
-  const user = useSelector((state) => state.user);
-  const isAuthenticated = user !== '';
+  const user = useSelector(selectUser);
+  const isAuthenticated = user !== null;
 
-  // if (!isAuthenticated) {
-  //   return (
-  //     <div id="mytask-layout" className="theme-indigo">
-  //       <Switch>
-  //         <Route path="/" component={AuthIndex} />
-  //       </Switch>
-  //     </div>
-  //   );
-  // }
+  if (!isAuthenticated) {
+    return (
+      <div id="mytask-layout" className="theme-indigo">
+        <Switch>
+          <Route path="/" component={AuthIndex} />
+        </Switch>
+      </div>
+    );
+  }
 
   return (
     <div id="mytask-layout" className="theme-indigo">

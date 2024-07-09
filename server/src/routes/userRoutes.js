@@ -3,12 +3,12 @@ const userController = require('../controller/userController');
 
 const userRouter = express.Router();
 
-userRouter.post('/login', userController.loginUser)
-userRouter.post('/user/create', userController.registerUser)
-userRouter.get('/users', userController.showUsers)
+userRouter.post('/user/login', userController.loginUser)
+userRouter.post('/user/register', userController.registerUser)
+userRouter.post('/user/create', userController.createUser)
+userRouter.get('/user/users', userController.showUsers)
 
-userRouter.route('/user/:id')
-   .get(userController.getSingleUser)
+userRouter.route('/user/user/:id')
    .put(userController.updateUser)
    .delete(userController.deleteUser)
 

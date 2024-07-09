@@ -1,36 +1,36 @@
-{
-    "menu": [
-        {
-            "name": "Dashboard",
-            "routerLink": [""],
-            "identifier": "dashboard",
-            "iconClass": "icofont-home fs-5",
-            "breadcrumbMessage": "Welcome to Analytics Dashboard.",
-            "isCategory": false,
-            "isApp": false,
-            "children": [
-                {
-                    "name": "Hr Dashboard",
-                    "routerLink": ["hr-dashboard"],
-                    "identifier": "Hr Dashboard",
-                    "iconClass": "",
-                    "breadcrumbMessage": "",
-                    "isCategory": false,
-                    "isApp": false,
-                    "children": []
-                },
-                {
-                    "name": "Project Dashboard",
-                    "routerLink": ["project-dashboard"],
-                    "identifier": "Project Dashboard",
-                    "iconClass": "",
-                    "breadcrumbMessage": "",
-                    "isCategory": false,
-                    "isApp": false,
-                    "children": []
-                }
-            ]
-        },
+    {
+        "menu": [
+            {
+                "name": "Dashboard",
+                "routerLink": [""],
+                "identifier": "dashboard",
+                "iconClass": "icofont-home fs-5",
+                "breadcrumbMessage": "Welcome to Analytics Dashboard.",
+                "isCategory": false,
+                "isApp": false,
+                "children": [
+                    {
+                        "name": "Hr Dashboard",
+                        "routerLink": ["hr-dashboard"],
+                        "identifier": "Hr Dashboard",
+                        "iconClass": "",
+                        "breadcrumbMessage": "",
+                        "isCategory": false,
+                        "isApp": false,
+                        "children": []
+                    },
+                    {
+                        "name": "Project Dashboard",
+                        "routerLink": ["project-dashboard"],
+                        "identifier": "Project Dashboard",
+                        "iconClass": "",
+                        "breadcrumbMessage": "",
+                        "isCategory": false,
+                        "isApp": false,
+                        "children": []
+                    }
+                ]
+            },
         {
             "name": "User Management",
             "routerLink": [""],

@@ -6,9 +6,13 @@ import TopPerformers from "../../components/Dashboard/TopPerformers";
 import UpcommingInterviews from "../../components/Dashboard/UpcommingInterviews";
 import GeneralChartCard from "../../components/Dashboard/GeneralChartCard";
 import { EmployeeInfoChartData,TotalEmployeesChartData,TopHiringSourcesChartData } from "../../components/Data/DashboardData";
+import { useSelector } from "react-redux";
 
 
 function HrDashboard (){
+
+    const {user} = useSelector((state) => state.user);
+    console.log('user', user)
     
         return(
             <div className="container-xxl">

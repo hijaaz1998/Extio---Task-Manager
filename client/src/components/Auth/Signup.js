@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import toast from 'react-hot-toast';
 import axiosInstance from "../../api/axiosEndpoint";
 
 function Signup() {
+    const history = useHistory();
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -38,7 +39,7 @@ function Signup() {
             return;
         }
         try {
-            const response = await axiosInstance.post('/user/create', {data: formData});
+            const response = await axiosInstance.post('/user/register', {data: formData});
             if(response.data.success){
                 toast.success(response.data.message);
             }
@@ -51,6 +52,7 @@ function Signup() {
                 mobile: '',
                 termsAccepted: false
             })
+            history.push('/sign-in')
         } catch (error) {
             if (error.response && error.response.data) {
                 toast.error(error.response.data.message);

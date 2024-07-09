@@ -1,9 +1,10 @@
 const Role = require('../model/roleModel');
+const User = require('../model/userModel');
 
 const addRole = async (req, res) => {
    try {
 
-       const { roleName, permissions } = req.body  ;
+       const { roleName, permissions } = req.body;
     
        const existingRole = await Role.findOne({roleName: roleName});
 
@@ -62,17 +63,24 @@ const deleteRole = async (req, res) => {
         const { id } = req.params;
 
         const deletedRole = await Role.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
-      if (!deletedRole) {
-         res.status(404).json({ message: 'Role not found', success: false });
-         return
-      }
-      res.status(200).json({ message: 'Role deleted successfully', success: true });
-      return 
+        if (!deletedRole) {
+            return res.status(404).json({ message: 'Role not found', success: false });
+        }
+
+        const usersWithRole = await User.find({ roles: id });
+
+        await Promise.all(usersWithRole.map(async (user) => {
+            user.roles = user.roles.filter(role => role.toString() !== id);
+            await user.save();
+        }));
+
+        return res.status(200).json({ message: 'Role deleted successfully', success: true });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: 'Internal server error', success: false });
+        return res.status(500).json({ message: 'Internal server error', success: false });
     }
 }
+
 
 module.exports = {
    addRole,

@@ -18,7 +18,6 @@ const userSchema = new mongoose.Schema({
    },
    password: {
       type: String,
-      required: true
    },
    roles: [
       {
@@ -29,6 +28,10 @@ const userSchema = new mongoose.Schema({
    termsAccepted: {
       type: Boolean,
       default: true
+   },
+   isDeleted: {
+      type: Boolean,
+      default: false
    }
 }, {timestamps: true});
 
